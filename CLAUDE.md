@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 ## What
-Knowledge base of reference docs, skills, slash commands, and custom agents for Claude Code.
+Knowledge base of reference docs, skills, slash commands, and custom agents for Claude Code and OpenAI Codex CLI.
 
 ## Tech
 - Just (task runner)
@@ -18,11 +18,13 @@ Knowledge base of reference docs, skills, slash commands, and custom agents for 
 
 ## Structure
 ```
-├── agents/          # Custom subagent .md files (frontmatter required)
-├── commands/        # Slash command .md files (frontmatter required)
-├── skills/          # Skill documentation
-├── skills-src/      # Skill source (SKILL.md + guides)
+├── agents/          # Claude-only: custom subagent .md files
+├── commands/        # Claude: slash command .md files
+├── codex/prompts/   # Codex: custom prompts (mirrored from commands/)
+├── skills/          # Claude-only: skill documentation
+├── skills-src/      # Claude-only: skill source (SKILL.md + guides)
 ├── prompting.md     # Reference doc
+├── SYNC.md          # Claude ↔ Codex format mapping
 └── justfile         # Installation recipes
 ```
 

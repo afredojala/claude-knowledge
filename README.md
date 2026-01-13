@@ -2,17 +2,25 @@
 
 Project-agnostic reference docs, skills, and commands for AI-assisted development.
 
+**Supports:** Claude Code + OpenAI Codex CLI (see [SYNC.md](SYNC.md) for format mapping)
+
 ## Quick Start
 
+### Claude Code
+```bash
+cd ~/repos/claude-knowledge
+just install-all
+```
+
+### OpenAI Codex
 ```bash
 cd ~/repos/claude-knowledge
 
-# Install everything
-just install-all
+# Link prompts
+ln -sfn "$(pwd)/codex/prompts" ~/.codex/prompts
 
-# Or install selectively
-just skill-install claude-md
-just command-install review-claude-md
+# Copy project instructions
+cp CLAUDE.md AGENTS.md
 ```
 
 ## Structure
@@ -20,21 +28,34 @@ just command-install review-claude-md
 ```
 claude-knowledge/
 ├── README.md
-├── justfile              # Installation recipes
+├── SYNC.md               # Claude ↔ Codex format mapping
+├── justfile              # Installation recipes (Claude)
 ├── prompting.md          # Reference: prompting best practices
-├── skills/               # Documentation about skills
+├── commands/             # Claude: slash commands
+│   └── *.md
+├── codex/prompts/        # Codex: custom prompts (mirrored)
+│   └── *.md
+├── skills/               # Claude-only: skill docs
 │   └── claude-md.md
-├── skills-src/           # Actual skill source files
+├── skills-src/           # Claude-only: skill source
 │   └── claude-md/
-│       ├── SKILL.md
-│       ├── user-guide.md
-│       └── project-guide.md
-└── commands/             # Slash command source files
-    ├── prompting-tips.md
-    └── review-claude-md.md
+└── agents/               # Claude-only: custom subagents
+    └── *.md
 ```
 
-## Justfile Commands
+## Feature Support
+
+| Feature | Claude Code | Codex | Portable? |
+|---------|:-----------:|:-----:|:---------:|
+| Project instructions | ✅ | ✅ | ✅ |
+| Custom commands/prompts | ✅ | ✅ | ✅ |
+| Multi-file skills | ✅ | ❌ | ❌ |
+| Custom agents | ✅ | ❌ | ❌ |
+| Tool restrictions | ✅ | ❌ | ❌ |
+
+See [SYNC.md](SYNC.md) for detailed format mapping.
+
+## Justfile Commands (Claude)
 
 | Command | Description |
 |---------|-------------|
