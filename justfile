@@ -20,10 +20,17 @@ status:
     echo ""
     echo "=== Commands ==="
     echo "Available in repo:"
-    for f in commands/*.md; do basename "$f" .md; done 2>/dev/null || echo "  (none)"
+    for f in commands/*.md; do [ -e "$f" ] && basename "$f" .md; done 2>/dev/null || echo "  (none)"
     echo ""
     echo "Installed in ~/.claude/commands/:"
     for f in ~/.claude/commands/*.md; do [ -e "$f" ] && basename "$f" .md; done 2>/dev/null || echo "  (none)"
+    echo ""
+    echo "=== Agents ==="
+    echo "Available in repo:"
+    for f in agents/*.md; do [ -e "$f" ] && basename "$f" .md; done 2>/dev/null || echo "  (none)"
+    echo ""
+    echo "Installed in ~/.claude/agents/:"
+    for f in ~/.claude/agents/*.md; do [ -e "$f" ] && basename "$f" .md; done 2>/dev/null || echo "  (none)"
 
 # ─────────────────────────────────────────────────────────────
 # Skills
@@ -115,18 +122,65 @@ commands-uninstall-all:
     done
 
 # ─────────────────────────────────────────────────────────────
+# Agents (Custom Subagents)
+# ─────────────────────────────────────────────────────────────
+
+# List available agents
+agents-list:
+    #!/usr/bin/env bash
+    for f in agents/*.md; do [ -e "$f" ] && basename "$f" .md; done 2>/dev/null || echo "  (none)"
+
+# Install a specific agent (symlink)
+agent-install name:
+    #!/usr/bin/env bash
+    mkdir -p ~/.claude/agents
+    if [ -f "agents/{{name}}.md" ]; then
+        ln -sfn "$(pwd)/agents/{{name}}.md" ~/.claude/agents/{{name}}.md
+        echo "✓ Installed agent: {{name}}"
+    else
+        echo "✗ Agent not found: {{name}}"
+        exit 1
+    fi
+
+# Install all agents
+agents-install-all:
+    #!/usr/bin/env bash
+    mkdir -p ~/.claude/agents
+    for agent in agents/*.md; do
+        [ -e "$agent" ] || continue
+        name=$(basename "$agent" .md)
+        ln -sfn "$(pwd)/$agent" ~/.claude/agents/$name.md
+        echo "✓ Installed agent: $name"
+    done
+
+# Uninstall a specific agent
+agent-uninstall name:
+    @rm -f ~/.claude/agents/{{name}}.md
+    @echo "✓ Uninstalled agent: {{name}}"
+
+# Uninstall all agents from this repo
+agents-uninstall-all:
+    #!/usr/bin/env bash
+    for agent in agents/*.md; do
+        [ -e "$agent" ] || continue
+        name=$(basename "$agent" .md)
+        rm -f ~/.claude/agents/$name.md
+        echo "✓ Uninstalled agent: $name"
+    done
+
+# ─────────────────────────────────────────────────────────────
 # All
 # ─────────────────────────────────────────────────────────────
 
-# Install everything (skills + commands)
-install-all: skills-install-all commands-install-all
+# Install everything (skills + commands + agents)
+install-all: skills-install-all commands-install-all agents-install-all
     @echo ""
-    @echo "✓ All skills and commands installed"
+    @echo "✓ All skills, commands, and agents installed"
 
 # Uninstall everything
-uninstall-all: skills-uninstall-all commands-uninstall-all
+uninstall-all: skills-uninstall-all commands-uninstall-all agents-uninstall-all
     @echo ""
-    @echo "✓ All skills and commands uninstalled"
+    @echo "✓ All skills, commands, and agents uninstalled"
 
 # Reinstall everything (useful after updates)
 reinstall: uninstall-all install-all
