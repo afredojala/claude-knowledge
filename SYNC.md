@@ -9,7 +9,7 @@ This repo supports both Claude Code and OpenAI Codex CLI. This document explains
 | `~/.claude/` | `~/.codex/` | Config home |
 | `CLAUDE.md` | `AGENTS.md` | Project instructions |
 | `commands/*.md` | `codex/prompts/*.md` | Custom slash commands |
-| `skills-src/` | — | No Codex equivalent |
+| `skills-src/<name>/` | `codex/prompts/<name>.md` | Flatten to single prompt |
 | `agents/*.md` | — | No Codex equivalent |
 
 ## Repo Structure
@@ -18,10 +18,13 @@ This repo supports both Claude Code and OpenAI Codex CLI. This document explains
 claude-knowledge/
 ├── commands/           # Claude Code commands
 │   └── *.md
-├── codex/
-│   └── prompts/        # OpenAI Codex prompts (mirrored from commands/)
+├── skills-src/         # Claude Code skills (multi-file)
+│   └── <name>/
+│       ├── SKILL.md
 │       └── *.md
-├── skills-src/         # Claude-only (no Codex equivalent)
+├── codex/
+│   └── prompts/        # OpenAI Codex prompts
+│       └── *.md        # (commands + flattened skills)
 ├── agents/             # Claude-only (no Codex equivalent)
 └── SYNC.md             # This file
 ```
@@ -88,14 +91,24 @@ Prompt body with:
 
 ---
 
-### Skills (Claude-only)
+### Skills → Prompts
 
-Skills are multi-file packages that auto-trigger based on context. Codex has no equivalent.
+Skills are multi-file packages that auto-trigger in Claude Code. Codex has no direct equivalent, but skills can be **flattened to single prompts**.
 
-**Options for Codex:**
-1. Convert to single prompt (loses supporting docs)
-2. Reference external docs in prompt body
-3. Skip (accept feature gap)
+**Conversion approach:**
+1. Combine `SKILL.md` + supporting docs into one file
+2. Adapt terminology (`CLAUDE.md` → `AGENTS.md`, `~/.claude/` → `~/.codex/`)
+3. Add `argument-hint` if the skill accepts parameters
+4. Place in `codex/prompts/<name>.md`
+
+**Example mapping:**
+| Claude Skill | Codex Prompt |
+|--------------|--------------|
+| `skills-src/claude-md/` | `codex/prompts/agents-md.md` |
+
+**What's lost:**
+- Auto-triggering (Codex prompts require explicit `/prompts:name` invocation)
+- Separate supporting doc files (must inline or truncate)
 
 ---
 
@@ -109,7 +122,7 @@ Custom subagents with model/tool restrictions. Codex has no equivalent.
 
 ## Manual Sync Checklist
 
-When adding/updating a command:
+### Commands
 
 1. **Edit source in `commands/<name>.md`**
 2. **Copy to `codex/prompts/<name>.md`**
@@ -118,7 +131,16 @@ When adding/updating a command:
    - Add `argument-hint` if command takes arguments
 4. **Test in both CLIs**
 
-When updating project instructions:
+### Skills
+
+1. **Edit source in `skills-src/<name>/`**
+2. **Flatten to `codex/prompts/<name>.md`:**
+   - Merge SKILL.md + supporting docs
+   - Adapt terminology (CLAUDE.md → AGENTS.md)
+   - Add `argument-hint` if needed
+3. **Test in both CLIs**
+
+### Project Instructions
 
 1. **Edit `CLAUDE.md`**
 2. **Copy to `AGENTS.md`** (or maintain symlink)
@@ -149,9 +171,9 @@ cp CLAUDE.md AGENTS.md
 |---------|-------------|-------|-----------|
 | Project instructions | ✅ | ✅ | ✅ Yes |
 | Custom commands | ✅ | ✅ | ✅ Yes (minor adjustments) |
+| Skills | ✅ (multi-file) | ✅ (flattened) | ⚠️ Flatten to single prompt |
 | Tool restrictions | ✅ | ❌ | ❌ No |
 | Positional args | ❌ | ✅ | ⚠️ Codex-only |
 | Named args | ❌ | ✅ | ⚠️ Codex-only |
-| Multi-file skills | ✅ | ❌ | ❌ No |
 | Custom agents | ✅ | ❌ | ❌ No |
 | Override files | ❌ | ✅ | ⚠️ Codex-only |

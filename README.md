@@ -49,7 +49,7 @@ claude-knowledge/
 |---------|:-----------:|:-----:|:---------:|
 | Project instructions | ✅ | ✅ | ✅ |
 | Custom commands/prompts | ✅ | ✅ | ✅ |
-| Multi-file skills | ✅ | ❌ | ❌ |
+| Skills | ✅ (multi-file) | ✅ (flattened) | ⚠️ |
 | Custom agents | ✅ | ❌ | ❌ |
 | Tool restrictions | ✅ | ❌ | ❌ |
 
