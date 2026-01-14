@@ -10,19 +10,23 @@ Knowledge base of reference docs, skills, slash commands, and custom agents for 
 
 ## Commands
 - `just status` - Show installed vs available
-- `just install-all` - Install all skills + commands + agents
+- `just install-all` - Install all Claude skills + commands + agents
 - `just reinstall` - Uninstall + reinstall (after updates)
-- `just skill-install <name>` - Install single skill
+- `just skill-install <name>` - Install single Claude skill
 - `just command-install <name>` - Install single command
 - `just agent-install <name>` - Install single agent
+- `just codex-install-all` - Install all Codex skills + prompts
+- `just codex-skill-install <name>` - Install single Codex skill
 
 ## Structure
 ```
 ├── agents/          # Claude-only: custom subagent .md files
 ├── commands/        # Claude: slash command .md files
-├── codex/prompts/   # Codex: custom prompts (mirrored from commands/)
-├── skills/          # Claude-only: skill documentation
-├── skills-src/      # Claude-only: skill source (SKILL.md + guides)
+├── codex/
+│   ├── prompts/     # Codex: custom prompts (commands equivalent)
+│   └── skills/      # Codex: native skills (same format as Claude)
+├── skills/          # Claude: skill documentation
+├── skills-src/      # Claude: skill source (SKILL.md + guides)
 ├── prompting.md     # Reference doc
 ├── SYNC.md          # Claude ↔ Codex format mapping
 └── justfile         # Installation recipes
@@ -59,11 +63,12 @@ System prompt in markdown...
 - Agents reload on session start; use `/agents` to reload without restart
 
 ## Gotchas
-- Skills go in `skills-src/<name>/SKILL.md`, docs in `skills/<name>.md`
+- Claude skills go in `skills-src/<name>/SKILL.md`, docs in `skills/<name>.md`
+- Codex skills go in `codex/skills/<name>/SKILL.md` (same format, different terminology)
 - Commands are single `.md` files with YAML frontmatter
 - Agents are single `.md` files with YAML frontmatter (like commands)
 - Install uses symlinks, not copies—edits here propagate immediately
-- `~/.claude/` must exist (justfile creates subdirs automatically)
+- `~/.claude/` and `~/.codex/` must exist (justfile creates subdirs automatically)
 
 ## Non-Negotiables
 - Skills must have `SKILL.md` as entry point

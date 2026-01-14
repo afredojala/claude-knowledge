@@ -184,3 +184,96 @@ uninstall-all: skills-uninstall-all commands-uninstall-all agents-uninstall-all
 
 # Reinstall everything (useful after updates)
 reinstall: uninstall-all install-all
+
+# ─────────────────────────────────────────────────────────────
+# Codex Skills
+# ─────────────────────────────────────────────────────────────
+
+# List available Codex skills
+codex-skills-list:
+    @ls -1 codex/skills/
+
+# Install a specific Codex skill (symlink)
+codex-skill-install name:
+    #!/usr/bin/env bash
+    mkdir -p ~/.codex/skills
+    if [ -d "codex/skills/{{name}}" ]; then
+        ln -sfn "$(pwd)/codex/skills/{{name}}" ~/.codex/skills/{{name}}
+        echo "✓ Installed Codex skill: {{name}}"
+    else
+        echo "✗ Codex skill not found: {{name}}"
+        exit 1
+    fi
+
+# Install all Codex skills
+codex-skills-install-all:
+    #!/usr/bin/env bash
+    mkdir -p ~/.codex/skills
+    for skill in codex/skills/*/; do
+        [ -d "$skill" ] || continue
+        name=$(basename "$skill")
+        ln -sfn "$(pwd)/codex/skills/$name" ~/.codex/skills/$name
+        echo "✓ Installed Codex skill: $name"
+    done
+
+# Uninstall a specific Codex skill
+codex-skill-uninstall name:
+    @rm -f ~/.codex/skills/{{name}}
+    @echo "✓ Uninstalled Codex skill: {{name}}"
+
+# Uninstall all Codex skills from this repo
+codex-skills-uninstall-all:
+    #!/usr/bin/env bash
+    for skill in codex/skills/*/; do
+        [ -d "$skill" ] || continue
+        name=$(basename "$skill")
+        rm -f ~/.codex/skills/$name
+        echo "✓ Uninstalled Codex skill: $name"
+    done
+
+# ─────────────────────────────────────────────────────────────
+# Codex Prompts (commands equivalent)
+# ─────────────────────────────────────────────────────────────
+
+# List available Codex prompts
+codex-prompts-list:
+    #!/usr/bin/env bash
+    for f in codex/prompts/*.md; do [ -e "$f" ] && basename "$f" .md; done 2>/dev/null || echo "  (none)"
+
+# Install all Codex prompts
+codex-prompts-install-all:
+    #!/usr/bin/env bash
+    mkdir -p ~/.codex/prompts
+    for prompt in codex/prompts/*.md; do
+        [ -e "$prompt" ] || continue
+        name=$(basename "$prompt" .md)
+        ln -sfn "$(pwd)/$prompt" ~/.codex/prompts/$name.md
+        echo "✓ Installed Codex prompt: $name"
+    done
+
+# Uninstall all Codex prompts
+codex-prompts-uninstall-all:
+    #!/usr/bin/env bash
+    for prompt in codex/prompts/*.md; do
+        [ -e "$prompt" ] || continue
+        name=$(basename "$prompt" .md)
+        rm -f ~/.codex/prompts/$name.md
+        echo "✓ Uninstalled Codex prompt: $name"
+    done
+
+# ─────────────────────────────────────────────────────────────
+# Codex All
+# ─────────────────────────────────────────────────────────────
+
+# Install all Codex content (skills + prompts)
+codex-install-all: codex-skills-install-all codex-prompts-install-all
+    @echo ""
+    @echo "✓ All Codex skills and prompts installed"
+
+# Uninstall all Codex content
+codex-uninstall-all: codex-skills-uninstall-all codex-prompts-uninstall-all
+    @echo ""
+    @echo "✓ All Codex skills and prompts uninstalled"
+
+# Reinstall all Codex content
+codex-reinstall: codex-uninstall-all codex-install-all

@@ -9,7 +9,7 @@ This repo supports both Claude Code and OpenAI Codex CLI. This document explains
 | `~/.claude/` | `~/.codex/` | Config home |
 | `CLAUDE.md` | `AGENTS.md` | Project instructions |
 | `commands/*.md` | `codex/prompts/*.md` | Custom slash commands |
-| `skills-src/<name>/` | `codex/prompts/<name>.md` | Flatten to single prompt |
+| `skills-src/<name>/` | `codex/skills/<name>/` | Native skills (same format) |
 | `agents/*.md` | — | No Codex equivalent |
 
 ## Repo Structure
@@ -23,8 +23,12 @@ claude-knowledge/
 │       ├── SKILL.md
 │       └── *.md
 ├── codex/
-│   └── prompts/        # OpenAI Codex prompts
-│       └── *.md        # (commands + flattened skills)
+│   ├── prompts/        # OpenAI Codex prompts (commands)
+│   │   └── *.md
+│   └── skills/         # OpenAI Codex skills (native format)
+│       └── <name>/
+│           ├── SKILL.md
+│           └── *.md
 ├── agents/             # Claude-only (no Codex equivalent)
 └── SYNC.md             # This file
 ```
@@ -91,24 +95,35 @@ Prompt body with:
 
 ---
 
-### Skills → Prompts
+### Skills
 
-Skills are multi-file packages that auto-trigger in Claude Code. Codex has no direct equivalent, but skills can be **flattened to single prompts**.
+Both Claude Code and Codex now support native multi-file skills with the same structure.
 
-**Conversion approach:**
-1. Combine `SKILL.md` + supporting docs into one file
-2. Adapt terminology (`CLAUDE.md` → `AGENTS.md`, `~/.claude/` → `~/.codex/`)
-3. Add `argument-hint` if the skill accepts parameters
-4. Place in `codex/prompts/<name>.md`
+**Skill format (both tools):**
+```
+<name>/
+├── SKILL.md          # Entry point (required)
+├── references/       # Supporting docs (optional)
+└── scripts/          # Helper scripts (optional)
+```
+
+**Frontmatter:**
+```yaml
+---
+name: skill-name
+description: When to use this skill
+---
+```
 
 **Example mapping:**
-| Claude Skill | Codex Prompt |
-|--------------|--------------|
-| `skills-src/claude-md/` | `codex/prompts/agents-md.md` |
+| Claude Skill | Codex Skill |
+|--------------|-------------|
+| `skills-src/claude-md/` | `codex/skills/agents-md/` |
 
-**What's lost:**
-- Auto-triggering (Codex prompts require explicit `/prompts:name` invocation)
-- Separate supporting doc files (must inline or truncate)
+**Differences:**
+- Claude: Auto-triggers based on description
+- Codex: Can auto-trigger or explicit `$skill-name` invocation
+- Terminology: `CLAUDE.md` → `AGENTS.md`, `~/.claude/` → `~/.codex/`
 
 ---
 
@@ -133,11 +148,10 @@ Custom subagents with model/tool restrictions. Codex has no equivalent.
 
 ### Skills
 
-1. **Edit source in `skills-src/<name>/`**
-2. **Flatten to `codex/prompts/<name>.md`:**
-   - Merge SKILL.md + supporting docs
-   - Adapt terminology (CLAUDE.md → AGENTS.md)
-   - Add `argument-hint` if needed
+1. **Edit source in `skills-src/<name>/`** (Claude) or `codex/skills/<name>/` (Codex)
+2. **Adapt terminology** if porting between tools:
+   - `CLAUDE.md` → `AGENTS.md`
+   - `~/.claude/` → `~/.codex/`
 3. **Test in both CLIs**
 
 ### Project Instructions
@@ -156,8 +170,12 @@ just install-all
 
 ### OpenAI Codex
 ```bash
-# Link prompts directory
-ln -sfn "$(pwd)/codex/prompts" ~/.codex/prompts
+# Install all Codex content (skills + prompts)
+just codex-install-all
+
+# Or individually:
+just codex-skills-install-all
+just codex-prompts-install-all
 
 # Copy project instructions (or symlink)
 cp CLAUDE.md AGENTS.md
@@ -171,7 +189,7 @@ cp CLAUDE.md AGENTS.md
 |---------|-------------|-------|-----------|
 | Project instructions | ✅ | ✅ | ✅ Yes |
 | Custom commands | ✅ | ✅ | ✅ Yes (minor adjustments) |
-| Skills | ✅ (multi-file) | ✅ (flattened) | ⚠️ Flatten to single prompt |
+| Skills (multi-file) | ✅ | ✅ | ✅ Yes (adapt terminology) |
 | Tool restrictions | ✅ | ❌ | ❌ No |
 | Positional args | ❌ | ✅ | ⚠️ Codex-only |
 | Named args | ❌ | ✅ | ⚠️ Codex-only |
