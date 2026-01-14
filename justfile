@@ -277,3 +277,16 @@ codex-uninstall-all: codex-skills-uninstall-all codex-prompts-uninstall-all
 
 # Reinstall all Codex content
 codex-reinstall: codex-uninstall-all codex-install-all
+
+# Configure Codex to use CLAUDE.md as fallback (single source of truth)
+codex-use-claude-md:
+    #!/usr/bin/env bash
+    config_file=~/.codex/config.toml
+    mkdir -p ~/.codex
+    if grep -q 'project_doc_fallback_filenames' "$config_file" 2>/dev/null; then
+        echo "⚠ project_doc_fallback_filenames already set in $config_file"
+        grep 'project_doc_fallback_filenames' "$config_file"
+    else
+        echo 'project_doc_fallback_filenames = ["CLAUDE.md"]' >> "$config_file"
+        echo "✓ Codex will now use CLAUDE.md as fallback when AGENTS.md is missing"
+    fi
